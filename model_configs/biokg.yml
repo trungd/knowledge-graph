@@ -1,0 +1,96 @@
+backend: pytorch
+env:
+  default:
+    variables:
+      freeze: false
+      no_reltype: false
+      model_name: src.model.TransE
+      lr_decay: 10
+      num_epochs: 20
+  biokg:
+    variables:
+      dataset_name: src.datasets.biokg.OgblBioKG
+      hidden_dim: 2000
+      gamma: 20
+  biokg_pairre:
+    variables:
+      model_name: src.model.PairRE
+      dataset_name: src.datasets.biokg.OgblBioKG
+      hidden_dim: 1000
+      gamma: 20
+  biokg_freeze:
+    variables:
+      dataset_name: src.datasets.biokg.OgblBioKG
+      hidden_dim: 2000
+      gamma: 20
+      freeze: true
+  biokg_no_reltype:
+    variables:
+      dataset_name: src.datasets.biokg.OgblBioKG
+      hidden_dim: 2000
+      gamma: 20
+      no_reltype: true
+  wikikg2:
+    variables:
+      dataset_name: src.datasets.wikikg2.OgblWikiKG2
+      hidden_dim: 100
+      gamma: 30
+  resampled-wikikg2:
+    variables:
+      dataset_name: src.datasets.resampled_wikikg2.OgblResampledWikiKG2
+      hidden_dim: 100
+      gamma: 30
+  citation2:
+    variables:
+      dataset_name: src.datasets.citation2.OgblCitation2
+  fb15k237:
+    variables:
+      dataset_name: src.datasets.fb15k_237.FB15K237
+      hidden_dim: 200
+      gamma: 30
+      num_epochs: 60
+      lr_decay: 30
+  fb15k:
+    variables:
+      dataset_name: src.datasets.fb15k.FB15K
+      hidden_dim: 200
+      gamma: 30
+      num_epochs: 60
+      lr_decay: 30
+model:
+  name: ~model_name
+  hidden_dim: ~hidden_dim
+  gamma: ~gamma
+  double_entity_embedding: false
+  double_relation_embedding: false
+  regularization: 0.0
+  adversarial_temperature: 1.0
+  uni_weight: false
+  negative_adversarial_sampling: true
+  freeze_relation_emb: ~freeze
+  no_reltype: ~no_reltype
+dataset:
+  name: ~dataset_name
+  test_random_sampling: false
+  shuffle: true
+  output_format: text
+  eval_negative_sample_size: 500
+  train_negative_sample_size: 128
+  epoch_sampling_size: 2560000000
+train:
+  valid_set: valid
+  select_model: best
+  num_epochs: ~num_epochs
+  batch_size: 512
+  optimizer:
+    name: adam
+    lr: 0.0001
+  lr_scheduler:
+    milestones:
+      - ~lr_decay
+    gamma: 0.1
+  eval_every: 0.5e
+  save_every: 10e
+test:
+  test_sets: [test]
+  metrics: [mrr, hit1, hit3, hit10]

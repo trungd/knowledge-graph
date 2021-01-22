@@ -19,6 +19,7 @@ class Model(BaseModel):
 
         self.nentity = dataset.nentity
         self.nrelation = dataset.nrelation
+
         self.hidden_dim = self.configs.hidden_dim
         self.epsilon = 2.0
 
@@ -29,7 +30,7 @@ class Model(BaseModel):
         )
 
         self.entity_dim = self.hidden_dim * 2 if self.configs.double_entity_embedding else self.hidden_dim
-        self.relation_dim = self.hidden_dim * 2 if self.configs.double_relation_embedding else self.hidden_dim
+        self.relation_dim = self.hidden_dim * 2 if type(self) == PairRE else self.hidden_dim
 
         self.entity_embedding = nn.Parameter(torch.zeros(self.nentity, self.entity_dim))
         nn.init.uniform_(
@@ -38,17 +39,19 @@ class Model(BaseModel):
             b=self.embedding_range.item()
         )
 
-        self.relation_embedding = nn.Parameter(torch.zeros(self.nrelation, self.relation_dim))
-        nn.init.uniform_(
-            tensor=self.relation_embedding,
-            a=-self.embedding_range.item(),
-            b=self.embedding_range.item()
-        )
-
-        self.evaluator = dataset.evaluator
+        self.relation_embedding = nn.Parameter(
+            torch.zeros(self.nrelation, self.relation_dim), requires_grad=not self.configs.freeze_relation_emb)
+        if self.configs.no_reltype:
+            pass
+        else:
+            nn.init.uniform_(
+                tensor=self.relation_embedding,
+                a=-self.embedding_range.item(),
+                b=self.embedding_range.item()
+            )
 
     def score_func(self, head, relation, tail, mode):
-        return None
+        return 0
 
     def get_score(self, sample, mode='single'):
         """

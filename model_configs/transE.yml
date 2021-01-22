@@ -1,0 +1,36 @@
+backend: pytorch
+env:
+  biokg:
+    variables:
+      dataset_name: src.datasets.ogbl.OgblBioKG
+  wikikg2:
+    variables:
+      dataset_name: src.datasets.ogbl.OgblWikiKG2
+  citation2:
+    variables:
+      dataset_name: src.datasets.ogbl.OgblCitation2
+model:
+  name: src.model.TransE
+  hidden_dim: 128
+  gamma: 30
+  double_entity_embedding: false
+  double_relation_embedding: false
+  regularization: 0.0
+  adversarial_temperature: 1.0
+  uni_weight: false
+  negative_adversarial_sampling: true
+dataset:
+  name: ~dataset_name
+  negative_sample_size: 128
+  test_random_sampling: false
+  shuffle: false
+train:
+  num_epochs: 1000
+  batch_size: 512
+  optimizer:
+    name: adam
+    lr: 0.0001
+  eval_every: 0.5e
+test:
+  test_sets: [test]
+  metrics: [mrr]
